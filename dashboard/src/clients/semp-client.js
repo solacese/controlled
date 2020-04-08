@@ -8,19 +8,17 @@ import { makeRequest } from "./http-client";
 
 export async function startReplay({
   brokerIp,
-  fromTime,
   port,
   messageVpn,
   sempUsername,
   sempPassword,
-  subscribeQueue,
   replayQueue
 }) {
   // form SEMP base path
   let baseUrl = `http://${brokerIp}:${port}/SEMP/v2/action/msgVpns/${messageVpn}`;
 
   const msgVpnQueueStartReplayConfig = {
-    fromTime,
+    fromTime: 0,
     replayLogName: replayQueue
   };
 
