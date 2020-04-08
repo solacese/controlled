@@ -18,8 +18,7 @@ export async function startReplay({
   let baseUrl = `http://${brokerIp}:${port}/SEMP/v2/action/msgVpns/${messageVpn}`;
 
   const msgVpnQueueStartReplayConfig = {
-    fromTime: 0,
-    replayLogName: replayQueue
+    fromTime: 0
   };
 
   const putRequestConfig = {
@@ -29,10 +28,10 @@ export async function startReplay({
     body: {
       ...msgVpnQueueStartReplayConfig
     },
-    endpoint: `/queues/${replayQueue}/startReplay`,
+    endpoint: `/queues/${encodeURIComponent(replayQueue)}/startReplay`,
     method: "PUT"
   };
-
+  console.log(putRequestConfig);
   try {
     console.log(`Starting replay on queue "${replayQueue}"...`);
     let res = await makeRequest(putRequestConfig);

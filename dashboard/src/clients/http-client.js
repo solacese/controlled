@@ -43,7 +43,7 @@ export async function makeRequest({
   }
   // make call
   try {
-    //console.log(config);
+    // console.log(config);
     let res = await axios(config);
     return res;
   } catch (err) {
