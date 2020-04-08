@@ -1,5 +1,6 @@
 /**
  * SempClient
+ * https://docs.solace.com/API-Developer-Online-Ref-Documentation/swagger-ui/action/index.html
  * @author Andrew Roberts
  */
 
@@ -7,40 +8,39 @@ import { makeRequest } from "./http-client";
 
 export async function startReplay({
   brokerIp,
+  fromTime,
   port,
   messageVpn,
-  sempUri,
   sempUsername,
-  sempPassword
+  sempPassword,
+  subscribeQueue,
+  replayQueue
 }) {
   // form SEMP base path
-  let baseUrl = "";
-  if (sempUri) {
-    // if cloud messaging service, allow user to enter the URL listed in the manage tab of the service
-    let regex = /config/gi;
-    baseUrl = `${sempUri.replace(regex, "action")}/msgVpns/${messageVpn}`;
-  } else {
-    baseUrl = `http://${brokerIp}:${port}/SEMP/v2/action/msgVpns/${messageVpn}`;
+  let baseUrl = `http://${brokerIp}:${port}/SEMP/v2/action/msgVpns/${messageVpn}`;
+
+  const msgVpnQueueStartReplayConfig = {
+    fromTime,
+    replayLogName: replayQueue
+  };
+
+  const putRequestConfig = {
+    baseUrl: baseUrl,
+    basicAuthUsername: sempUsername,
+    basicAuthPassword: sempPassword,
+    body: {
+      ...msgVpnQueueStartReplayConfig
+    },
+    endpoint: `/queues/${replayQueue}/startReplay`,
+    method: "PUT"
+  };
+
+  try {
+    console.log(`Starting replay on queue "${replayQueue}"...`);
+    let res = await makeRequest(putRequestConfig);
+    return res["data"];
+  } catch (err) {
+    console.error(err);
+    return false;
   }
-
-  console.log(baseUrl);
-  // const putRequestConfig = {
-  //   baseUrl: baseUrl,
-  //   basicAuthUsername: sempUsername,
-  //   basicAuthPassword: sempPassword,
-  //   body: {
-  //     ...clientUsernameConfig
-  //   },
-  //   endpoint: "/clientUsernames",
-  //   method: "POST"
-  // };
-
-  // try {
-  //   console.log(`Fetching client connections in Msg VPN "${msgVpnName}"...`);
-  //   let res = await makeRequest(getRequestParams);
-  //   return res["data"];
-  // } catch (err) {
-  //   console.error(err);
-  //   return false;
-  // }
 }
